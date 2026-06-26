@@ -116,6 +116,8 @@ Stage 2 also supports the following inference policies:
 
 Datasets and model checkpoints are not included in this repository. Keep datasets and local LLM checkpoints outside the code repository, then pass their paths through environment variables or command-line arguments.
 
+The MAGB dataset is available at [MAGB](https://huggingface.co/datasets/Sherirto/MAGB).
+
 For example, if using the Movies dataset for the experiment, the expected data layout is:
 
 ```text
