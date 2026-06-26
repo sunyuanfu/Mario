@@ -1,0 +1,8 @@
+torch>=2.1
+dgl>=1.1
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
+tqdm>=4.66
+transformers>=4.44
+peft>=0.12
