@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/badge/Paper-arXiv%3A2603.05181-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white" alt="Paper">
   </a>
   <a href="https://huggingface.co/datasets/Sherirto/MAGB">
-    <img src="https://img.shields.io/badge/Dataset-Hugging%20Face-ffcc00?style=for-the-badge&logo=huggingface&logoColor=black" alt="Dataset">
+    <img src="https://img.shields.io/badge/Dataset-Hugging%20Face-ffcc00?style=for-the-badge&logo=huggingface&logoColor=black" alt="Dataset (MAGB)">
   </a>
 </p>
 
