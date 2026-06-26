@@ -18,7 +18,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--llm-model-path",
         type=str,
-        default="/storage/zhangx_data/model_weights/Llama-3.1-8B-Instruct",
+        required=True,
+        help="Local path to the LLM checkpoint.",
     )
     parser.add_argument("--output-dir", type=str, default="runs/mario_llm_movies")
     parser.add_argument("--resume-checkpoint", type=str, default="")

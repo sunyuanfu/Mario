@@ -37,7 +37,7 @@ class GraphTuringNLRPreTrainedModel(TuringNLRv3PreTrainedModel):
                     kwargs["state_dict"] = state_dict_convert[model_type](state_dict)
                     logger.info("Load local ckpts")
                 elif os.path.isdir(pretrained_model_name_or_path):
-                    state_dict = torch.load(os.path.join(pretrained_model_naxme_or_path, WEIGHTS_NAME),
+                    state_dict = torch.load(os.path.join(pretrained_model_name_or_path, WEIGHTS_NAME),
                                             map_location='cpu')
                     kwargs["state_dict"] = state_dict_convert[model_type](state_dict)
                     logger.info("Load local ckpts")

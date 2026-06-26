@@ -1,17 +1,11 @@
 import os
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-import jsonlines
 import pandas as pd
 from PIL import Image
 import numpy as np
 import torch
-import torchvision.transforms as transforms
 import dgl
 from transformers import CLIPProcessor, CLIPModel
-import psutil
-import os
 from sklearn.metrics import roc_auc_score
-from transformers import BertTokenizerFast,BertModel,ViTFeatureExtractor, ViTForImageClassification,ViTModel
 class NodeClassificationDataset(object):
     def __init__(self, root: str,verbose: bool=True, device: str="cpu",bert_name: str = "bert-base-uncased",feat="clip",data_path="",save=False,trun=True,use_large_features=False):
         """
@@ -28,10 +22,6 @@ class NodeClassificationDataset(object):
             clip_model_name = "openai/clip-vit-base-patch16"
             self.processor = CLIPProcessor.from_pretrained(clip_model_name)
             self.model = CLIPModel.from_pretrained(clip_model_name).to("cuda")
-        transform = transforms.Compose([
-            transforms.Resize((500, 500)),
-            transforms.ToTensor()
-        ])
         self.name = os.path.basename(root)
         self.verbose = verbose
         self.root = root
@@ -142,7 +132,7 @@ class NodeClassificationDataset(object):
             torch.save(att,os.path.join(root,"catt.pt"))
             return 
 
-        # 使用大图特征文件（4096维）
+        # Load large 4096D feature files.
         if use_large_features:
             print("Loading large features from ImageFeature and TextFeature folders...")
             img_feat_path = os.path.join(root, "ImageFeature", f"{self.name}_Llama-3.2-11B-Vision-Instruct_visual.npy")
@@ -154,15 +144,15 @@ class NodeClassificationDataset(object):
             img_feat = torch.from_numpy(img_feat_np).float()
             text_feat = torch.from_numpy(text_feat_np).float()
             
-            # 将特征移动到目标设备
+            # Move features to the target device.
             img_feat = img_feat.to(self.device)
             text_feat = text_feat.to(self.device)
             
-            # 使用DGL的方法创建图并移动到设备
+            # Build the DGL graph before attaching node features.
             src, dst = graph.edges()
             self.graph = dgl.graph((src, dst), num_nodes=self.num_nodes)
             
-            # 先添加特征到CPU图，然后整体移动到目标设备
+            # Attach features on CPU first; the graph is moved below if needed.
             self.graph.ndata['image_feat'] = img_feat.cpu().unsqueeze(1)
             self.graph.ndata["text_feat"] = text_feat.cpu().unsqueeze(1)
             self.graph.ndata['attention_mask'] = torch.ones(self.num_nodes, 1, dtype=torch.long)
@@ -172,7 +162,7 @@ class NodeClassificationDataset(object):
             print(f"  Text features shape: {text_feat.shape}")
             print(f"  Graph nodes: {self.num_nodes}")
             
-        # 使用小特征文件（512维）
+        # Load small 512D feature files.
         else:
             if not trun:
                 node_ids=torch.load(os.path.join(root,"text_feat.pt"))
@@ -180,9 +170,9 @@ class NodeClassificationDataset(object):
                 node_ids=torch.load(os.path.join(root,"ctext_feat.pt"))
 
             src, dst = graph.edges()
-            # 先在CPU上创建图
+            # Build the graph on CPU first.
             self.graph = dgl.graph((src, dst), num_nodes=self.num_nodes)
-            # 先添加特征到CPU图
+            # Attach features on CPU first.
             self.graph.ndata['image_feat'] = torch.load(os.path.join(root,"cimg_feat.pt"))
             self.graph.ndata["text_feat"] = node_ids
             self.graph.ndata['attention_mask'] = torch.load(os.path.join(root,"catt.pt"))
@@ -191,7 +181,7 @@ class NodeClassificationDataset(object):
         node_split_path = os.path.join(root, 'split.pt')
         self.node_split = self.split_graph(self.num_nodes,0.6,0.2)
         
-        # 先在CPU上创建mask
+        # Build masks on CPU first.
         train_mask = torch.zeros(self.num_nodes, dtype=torch.bool)
         val_mask = torch.zeros(self.num_nodes, dtype=torch.bool)
         test_mask = torch.zeros(self.num_nodes, dtype=torch.bool)
@@ -200,20 +190,20 @@ class NodeClassificationDataset(object):
         val_mask[self.node_split[1]] = True
         test_mask[self.node_split[2]] = True
  
-        # 添加mask到图
+        # Attach masks to the graph.
         self.graph.ndata['train_mask'] = train_mask
         self.graph.ndata['val_mask'] = val_mask
         self.graph.ndata['test_mask'] = test_mask
         self.graph.ndata["index"] = torch.arange(self.num_nodes)
         self.graph.ndata["label"] = self.label
         
-        # 如果目标设备是CUDA，使用CUDA张量重新创建图
+        # Rebuild the graph with CUDA tensors if requested.
         if isinstance(self.device, str) and self.device.startswith('cuda'):
             src, dst = self.graph.edges()
             src = src.cuda()
             dst = dst.cuda()
             new_graph = dgl.graph((src, dst), num_nodes=self.num_nodes)
-            # 移动所有特征
+            # Move all node features.
             for key in self.graph.ndata:
                 new_graph.ndata[key] = self.graph.ndata[key].cuda()
             self.graph = new_graph

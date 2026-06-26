@@ -1,17 +1,11 @@
 import os
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
-import jsonlines
 import pandas as pd
 from PIL import Image
 import numpy as np
 import torch
-import torchvision.transforms as transforms
 import dgl
 from transformers import CLIPProcessor, CLIPModel
-import psutil
-import os
 from sklearn.metrics import roc_auc_score
-from transformers import BertTokenizerFast,BertModel,ViTFeatureExtractor, ViTForImageClassification,ViTModel
 class NodeClassificationDataset(object):
     def __init__(self, root: str,verbose: bool=True, device: str="cpu",bert_name: str = "bert-base-uncased",feat="clip",data_path="",save=False,trun=True):
 
@@ -19,10 +13,6 @@ class NodeClassificationDataset(object):
         self.processor = CLIPProcessor.from_pretrained(clip_model_name)
         self.model = CLIPModel.from_pretrained(clip_model_name).to("cuda")
         root = os.path.normpath(root)
-        transform = transforms.Compose([
-            transforms.Resize((500, 500)),
-            transforms.ToTensor()
-        ])
         self.name = os.path.basename(root)
         self.verbose = verbose
         self.root = root

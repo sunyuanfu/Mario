@@ -81,7 +81,7 @@ def train(local_rank, args, end, load):
         for ep in range(args.epochs):
             start_time = time.time()
             ddp_model.train()
-            dataset = DatasetForMatching(file_path="/home/xjy/home/xjy/lk/data/t5vit_feat.pt")
+            dataset = DatasetForMatching(file_path=args.train_data_path)
             if args.world_size > 1:
                 end.value = False
                 dataloader = MultiProcessDataLoader(dataset,
