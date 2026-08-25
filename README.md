@@ -225,12 +225,13 @@ stage2/runs/mario_movies_stage2/metrics.json
 If you find this repository useful, please cite our paper💗:
 
 ```bibtex
-@inproceedings{sun2026mario,
-  title={Mario: Multimodal graph reasoning with large language models},
-  author={Sun, Yuanfu and Li, Kang and Guo, Pengkang and Liu, Jiajin and Tan, Qiaoyu},
-  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-  pages={19219--19228},
-  year={2026}
+@InProceedings{Sun_2026_CVPR,
+    author    = {Sun, Yuanfu and Li, Kang and Guo, Pengkang and Liu, Jiajin and Tan, Qiaoyu},
+    title     = {Mario: Multimodal Graph Reasoning with Large Language Models},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2026},
+    pages     = {19219-19228}
 }
 ```
 
